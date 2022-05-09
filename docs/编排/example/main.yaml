@@ -1,0 +1,55 @@
+name: deploy nginx
+timeout: 600
+tasks:
+  - name: flow control
+    plugin: exec
+    cmd: echo "do even things"
+    if: $EVEN = 1
+    timeout: 1
+  - name: flow control
+    plugin: exec
+    cmd: echo "do odd things"
+    if: $ODD = 1
+  - name: check nginx if installed
+    plugin: exec
+    cmd: apt list --installed 2>/dev/null | grep nginx | wc -l
+    auth: su
+    output: installed
+  - name: stop nginx if installed
+    plugin: exec
+    cmd: service nginx stop
+    auth: su
+    if: $installed > 0
+  - name: remove nginx if installed
+    plugin: exec
+    cmd: apt-get purge -y nginx
+    auth: su
+    if: $installed > 0
+  - name: install nginx
+    plugin: exec
+    cmd: apt-get install -y nginx
+    auth: su
+  - name: start nginx
+    plugin: exec
+    cmd: service nginx start
+    auth: su
+  - name: add server
+    plugin: file
+    action: push
+    src: example.conf
+    dst: /etc/nginx/conf.d/example.conf
+    auth: su
+  - name: mkdir /var/www/example
+    plugin: exec
+    cmd: mkdir -p /var/www/example
+    auth: su
+  - name: add index.html
+    plugin: file
+    action: push
+    src: index.html
+    dst: /var/www/example/index.html
+    auth: su
+  - name: reload service
+    plugin: exec
+    cmd: service nginx reload
+    auth: su
