@@ -29,8 +29,17 @@ type configArgs struct {
 type context struct {
 	ID      int64      `json:"id"`
 	Args    configArgs `json:"args"`
-	CID     string     `json:"cid"`
+	Targets []string   `json:"cids"`
 	Started bool       `json:"started"`
+}
+
+func (ctx *context) in(id string) bool {
+	for _, cid := range ctx.Targets {
+		if cid == id {
+			return true
+		}
+	}
+	return false
 }
 
 func (h *Handler) config(clients *client.Clients, ctx *api.Context) {
@@ -67,10 +76,28 @@ func (h *Handler) config(clients *client.Clients, ctx *api.Context) {
 	}
 	runtime.Assert(err)
 
-	rt.CID, err = rt.Args.send(clients, rt.ID, h.cfg.LoggingReport)
-	if err == errNoCollector {
-		ctx.ERR(1, err.Error())
-		return
+	switch {
+	case rt.Args.K8s != nil:
+		var cid string
+		cid, err = rt.Args.sendK8s(clients, rt.ID, h.cfg.LoggingReport)
+		if err == errNoCollector {
+			ctx.ERR(1, err.Error())
+			return
+		}
+		rt.Targets = []string{cid}
+	default:
+		ids := ctx.XCsv("ids")
+		var clis []*client.Client
+		for _, id := range ids {
+			cli := clients.Get(id)
+			if cli == nil {
+				ctx.NotFound(fmt.Sprintf("agent: %s", id))
+				return
+			}
+			clis = append(clis, cli)
+		}
+		err = rt.Args.sendTargets(clis, rt.ID, h.cfg.LoggingReport)
+		rt.Targets = ids
 	}
 	runtime.Assert(err)
 
@@ -155,33 +182,30 @@ func (args *configArgs) sendTo(cli *client.Client, pid int64, report string) err
 	}
 }
 
-func (args *configArgs) send(clients *client.Clients, pid int64, report string) (string, error) {
+func (args *configArgs) sendK8s(clients *client.Clients, pid int64, report string) (string, error) {
 	var cli *client.Client
-	switch {
-	case args.K8s != nil:
-		clis := clients.Prefix(args.K8s.Namespace + "-k8s-")
+	clis := clients.Prefix(args.K8s.Namespace + "-k8s-")
+	if len(clis) == 0 {
+		clis = clients.Prefix("k8s-")
 		if len(clis) == 0 {
-			clis = clients.Prefix("k8s-")
-			if len(clis) == 0 {
-				return "", errNoCollector
-			}
+			return "", errNoCollector
 		}
-		cli = clis[int(pid)%len(clis)]
+	}
+	cli = clis[int(pid)%len(clis)]
+	err := args.sendTo(cli, pid, report)
+	if err != nil {
+		return "", err
+	}
+	return cli.ID(), nil
+}
+
+func (args *configArgs) sendTargets(targets []*client.Client, pid int64, report string) error {
+	for _, cli := range targets {
 		err := args.sendTo(cli, pid, report)
 		if err != nil {
-			return "", err
+			logging.Error("send logging config to %s: %v", cli.ID(), err)
+			return err
 		}
-		return cli.ID(), nil
-	case args.File != nil:
-		for _, cli := range clients.All() {
-			err := args.sendTo(cli, pid, report)
-			if err != nil {
-				logging.Error("broadcast file logging config to %s: %v", cli.ID(), err)
-				continue
-			}
-		}
-		return "", nil
-	default:
-		return "", errors.New("unsupported")
 	}
+	return nil
 }

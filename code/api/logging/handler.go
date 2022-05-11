@@ -46,7 +46,7 @@ func (h *Handler) OnConnect(cli *client.Client) {
 	var send []*context
 	h.RLock()
 	for _, ctx := range h.data {
-		if ctx.CID == cli.ID() {
+		if ctx.in(cli.ID()) {
 			send = append(send, ctx)
 		}
 	}
