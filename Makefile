@@ -16,6 +16,7 @@ LDFLAGS="-X 'main.gitBranch=$(BRANCH)' \
 -X 'main.version=$(VERSION)'"
 
 all:
+	go mod vendor
 	rm -fr $(OUTDIR)/$(VERSION)
 	mkdir -p $(OUTDIR)/$(VERSION)/opt/smartagent-server/bin \
 		$(OUTDIR)/$(VERSION)/opt/smartagent-server/conf
