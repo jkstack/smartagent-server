@@ -25,7 +25,7 @@ all:
 	cp conf/server.conf $(OUTDIR)/$(VERSION)/opt/smartagent-server/conf/server.conf
 	echo $(VERSION) > $(OUTDIR)/$(VERSION)/opt/smartagent-server/.version
 	cd $(OUTDIR)/$(VERSION) && fakeroot tar -czvf smartagent-server_$(VERSION).tar.gz \
-		--warning=no-file-changed *
+		--warning=no-file-changed opt
 	rm -fr $(OUTDIR)/$(VERSION)/opt $(OUTDIR)/$(VERSION)/etc
 	cp CHANGELOG.md $(OUTDIR)/CHANGELOG.md
 version:
