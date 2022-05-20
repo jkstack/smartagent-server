@@ -77,6 +77,8 @@ func (h *Handler) static(clients *client.Clients, ctx *api.Context) {
 		OSName          string `json:"os_name"`
 		Platform        string `json:"platform"`
 		PlatformVersion string `json:"platform_version"`
+		KernelArch      string `json:"kernel_arch"`
+		KernelVersion   string `json:"kernel_version"`
 		PhysicalCore    int    `json:"physical_core"`
 		LogicalCore     int    `json:"logical_core"`
 		Cores           []core `json:"cores"`
@@ -93,6 +95,8 @@ func (h *Handler) static(clients *client.Clients, ctx *api.Context) {
 	ret.OSName = info.OS.Name
 	ret.Platform = info.OS.PlatformName
 	ret.PlatformVersion = info.OS.PlatformVersion
+	ret.KernelArch = info.Kernel.Arch
+	ret.KernelVersion = info.Kernel.Version
 	ret.PhysicalCore = info.CPU.Physical
 	ret.LogicalCore = info.CPU.Logical
 	for _, c := range info.CPU.Cores {
