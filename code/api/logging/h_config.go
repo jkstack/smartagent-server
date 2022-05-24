@@ -18,12 +18,13 @@ import (
 )
 
 type configArgs struct {
-	Exclude  string      `json:"exclude"`
-	Batch    int         `json:"batch"`
-	Buffer   int         `json:"buffer"`
-	Interval int         `json:"interval"`
-	K8s      *k8sConfig  `json:"k8s,omitempty"`
-	File     *fileConfig `json:"file,omitempty"`
+	Exclude  string        `json:"exclude"`
+	Batch    int           `json:"batch"`
+	Buffer   int           `json:"buffer"`
+	Interval int           `json:"interval"`
+	K8s      *k8sConfig    `json:"k8s,omitempty"`
+	Docker   *dockerConfig `json:"docker,omitempty"`
+	File     *fileConfig   `json:"file,omitempty"`
 }
 
 type context struct {
@@ -66,7 +67,8 @@ func (h *Handler) config(clients *client.Clients, ctx *api.Context) {
 		rt.Args.K8s = new(k8sConfig)
 		err = rt.Args.K8s.build(ctx)
 	case "docker":
-		err = errors.New("unsupported")
+		rt.Args.Docker = new(dockerConfig)
+		err = rt.Args.Docker.build(ctx)
 	case "logtail":
 		rt.Args.File = new(fileConfig)
 		err = rt.Args.File.build(ctx)
@@ -171,6 +173,11 @@ func (args *configArgs) sendTo(cli *client.Client, pid int64, report string) err
 		_, err := cli.SendLoggingConfigK8s(pid, args.Exclude,
 			args.Batch, args.Buffer, args.Interval, report,
 			args.K8s.Namespace, args.K8s.Names, args.K8s.Dir, args.K8s.Api, args.K8s.Token)
+		return err
+	case args.Docker != nil:
+		_, err := cli.SendLoggingConfigDocker(pid, args.Exclude,
+			args.Batch, args.Buffer, args.Interval, report,
+			args.Docker.ContainerName, args.Docker.ContainerTag, args.Docker.Dir)
 		return err
 	case args.File != nil:
 		_, err := cli.SendLoggingConfigFile(pid, args.Exclude,

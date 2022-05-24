@@ -32,3 +32,16 @@ func (cfg *fileConfig) build(ctx *api.Context) error {
 	cfg.Dir = ctx.OStr("dir", "")
 	return nil
 }
+
+type dockerConfig struct {
+	ContainerName string `json:"ct_name"`
+	ContainerTag  string `json:"ct_tag"`
+	Dir           string `json:"dir"`
+}
+
+func (cfg *dockerConfig) build(ctx *api.Context) error {
+	cfg.ContainerName = ctx.XStr("ct_name")
+	cfg.ContainerTag = ctx.OStr("ct_tag", "")
+	cfg.Dir = ctx.OStr("dir", "")
+	return nil
+}

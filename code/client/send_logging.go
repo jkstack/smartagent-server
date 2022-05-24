@@ -35,6 +35,33 @@ func (cli *Client) SendLoggingConfigK8s(pid int64, ext string, batch, buffer, in
 	return taskID, nil
 }
 
+func (cli *Client) SendLoggingConfigDocker(pid int64, ext string, batch, buffer, interval int, report string,
+	containerName, containerTag, dir string) (string, error) {
+	taskID, err := utils.TaskID()
+	if err != nil {
+		return "", err
+	}
+	var msg anet.Msg
+	msg.Type = anet.TypeLoggingConfig
+	msg.TaskID = taskID
+	msg.LoggingConfig = &anet.LoggingConfig{
+		Pid:      pid,
+		T:        anet.LoggingTypeDocker,
+		Exclude:  ext,
+		Batch:    batch,
+		Buffer:   buffer,
+		Interval: interval,
+		Report:   report,
+		Docker: &anet.LoggingConfigDocker{
+			ContainerName: containerName,
+			ContainerTag:  containerTag,
+			Dir:           dir,
+		},
+	}
+	cli.chWrite <- &msg
+	return taskID, nil
+}
+
 func (cli *Client) SendLoggingConfigFile(pid int64, ext string, batch, buffer, interval int, report string,
 	dir string) (string, error) {
 	taskID, err := utils.TaskID()
