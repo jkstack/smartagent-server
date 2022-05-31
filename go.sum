@@ -11,6 +11,8 @@ github.com/gorilla/websocket v1.5.0 h1:PPwGk2jz7EePpoHN/+ClbZu8SPxiqlu12wZP/3sWm
 github.com/gorilla/websocket v1.5.0/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/jkstack/anet v0.0.0-20220425074031-0850fcf432c2 h1:s+7lREpXiZIs+Inp1gwCPTUy3tz9+VZuhySOGwqaRsI=
 github.com/jkstack/anet v0.0.0-20220425074031-0850fcf432c2/go.mod h1:zpkHPpKpEdaNNLLLabhWdyjRcczZYwPLocie5ys/RTc=
+github.com/jkstack/anet v0.0.0-20220523074903-fb4b84a47bdc h1:JHexfv609ZBMogMBo+D69+CQaTJ9yoJ67Tn7jqoZKmk=
+github.com/jkstack/anet v0.0.0-20220523074903-fb4b84a47bdc/go.mod h1:zpkHPpKpEdaNNLLLabhWdyjRcczZYwPLocie5ys/RTc=
 github.com/kardianos/service v1.2.1 h1:AYndMsehS+ywIS6RB9KOlcXzteWUzxgMgBymJD7+BYk=
 github.com/kardianos/service v1.2.1/go.mod h1:CIMRFEJVL+0DS1a3Nx06NaMn4Dz63Ng6O7dl0qH0zVM=
 github.com/kr/fs v0.1.0 h1:Jskdu9ieNAYnjxsi0LbQp1ulIKZV1LAFgK1tWhpZgl8=
