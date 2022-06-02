@@ -5,6 +5,7 @@ import (
 	"net/http"
 	lapi "server/code/api"
 	"server/code/client"
+	"strings"
 
 	"github.com/lwch/api"
 	"github.com/lwch/logging"
@@ -16,6 +17,8 @@ func (app *App) reg(uri string, cb func(*client.Clients, *api.Context)) {
 			http.Error(w, "raise limit", http.StatusServiceUnavailable)
 			return
 		}
+		tick := app.stats.New("api_" + strings.ReplaceAll(uri, "/", "_"))
+		defer tick.Close()
 		ctx := api.NewContext(w, r)
 		defer func() {
 			if err := recover(); err != nil {

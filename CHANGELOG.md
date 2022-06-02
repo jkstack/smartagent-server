@@ -4,6 +4,7 @@
 
 1. 修正/hm/static接口返回值与文档不一致的问题
 2. 支持docker容器的log采集
+3. 增加所有API接口的prometheus埋点
 
 ## 2.0.1
 

@@ -20,6 +20,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jkstack/jkframe/stat"
 	"github.com/kardianos/service"
 	"github.com/lwch/api"
 	"github.com/lwch/logging"
@@ -41,6 +42,7 @@ type App struct {
 	version     string
 	blocked     bool
 	connectLock sync.Mutex
+	stats       *stat.Mgr
 }
 
 // New new app
@@ -50,6 +52,7 @@ func New(cfg *conf.Configure, version string) *App {
 		clients: client.NewClients(),
 		version: version,
 		blocked: false,
+		stats:   stat.New(5 * time.Second),
 	}
 	go app.limit()
 	return app
