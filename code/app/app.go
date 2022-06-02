@@ -95,6 +95,7 @@ func (app *App) Start(s service.Service) error {
 			}
 		}
 
+		http.HandleFunc("/metrics", app.stats.ServeHTTP)
 		http.HandleFunc("/ws/agent", func(w http.ResponseWriter, r *http.Request) {
 			onConnect := make(chan *client.Client)
 			onClose := make(chan string)
