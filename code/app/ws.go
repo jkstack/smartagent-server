@@ -33,6 +33,9 @@ func (app *App) agent(w http.ResponseWriter, r *http.Request,
 		return
 	}
 	if app.handshake(conn, come) {
+		ct := app.stats.NewCounter("agent_count")
+		ct.Inc()
+		defer ct.Dec()
 		logging.Info("client %s connection on, os=%s, arch=%s, mac=%s",
 			come.ID, come.OS, come.Arch, come.MAC)
 		cli := app.clients.New(conn, come, onClose)

@@ -17,7 +17,10 @@ func (app *App) reg(uri string, cb func(*client.Clients, *api.Context)) {
 			http.Error(w, "raise limit", http.StatusServiceUnavailable)
 			return
 		}
-		tick := app.stats.New("api" + strings.ReplaceAll(uri, "/", "_"))
+		statName := strings.ReplaceAll(uri, "/", "_")
+		counter := app.stats.NewCounter("api_counter" + statName)
+		counter.Inc()
+		tick := app.stats.NewTick("api_pref" + statName)
 		defer tick.Close()
 		ctx := api.NewContext(w, r)
 		defer func() {
