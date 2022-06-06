@@ -6,7 +6,7 @@ require (
 	github.com/dustin/go-humanize v1.0.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/jkstack/anet v0.0.0-20220523074903-fb4b84a47bdc
-	github.com/jkstack/jkframe v1.0.3-0.20220602101406-ed15e6e2695b
+	github.com/jkstack/jkframe v1.0.3-0.20220606065958-388474b3e8d0
 	github.com/kardianos/service v1.2.1
 	github.com/lwch/api v0.0.0-20220418064400-20942890aacd
 	github.com/lwch/kvconf v0.0.0-20211201080405-98b2290c1921

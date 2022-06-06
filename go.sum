@@ -139,6 +139,8 @@ github.com/jkstack/anet v0.0.0-20220523074903-fb4b84a47bdc h1:JHexfv609ZBMogMBo+
 github.com/jkstack/anet v0.0.0-20220523074903-fb4b84a47bdc/go.mod h1:zpkHPpKpEdaNNLLLabhWdyjRcczZYwPLocie5ys/RTc=
 github.com/jkstack/jkframe v1.0.3-0.20220602101406-ed15e6e2695b h1:5woTF2W60tqZdzPVFC7CTw11iTVo68x9LKPdfY+QRFE=
 github.com/jkstack/jkframe v1.0.3-0.20220602101406-ed15e6e2695b/go.mod h1:s3Eq2ScKxRLGjHU8qfjapfO5fcuXtDwsZSJiq+naIfY=
+github.com/jkstack/jkframe v1.0.3-0.20220606065958-388474b3e8d0 h1:RBgSyt9PE29SL9UzpUJefKxmTtLXtViYTeeL7Y9jY1M=
+github.com/jkstack/jkframe v1.0.3-0.20220606065958-388474b3e8d0/go.mod h1:s3Eq2ScKxRLGjHU8qfjapfO5fcuXtDwsZSJiq+naIfY=
 github.com/jpillora/backoff v1.0.0/go.mod h1:J/6gKK9jxlEcS3zixgDgUAsiuZ7yrSoa/FX5e0EB2j4=
 github.com/json-iterator/go v1.1.6/go.mod h1:+SdeFBvtyEkXs7REEP0seUULqWtbJapLOCVDaaPEHmU=
 github.com/json-iterator/go v1.1.10/go.mod h1:KdQUCv79m/52Kvf8AW2vK1V8akMuk1QjK/uOdHXbAo4=
