@@ -43,16 +43,21 @@ type App struct {
 	blocked     bool
 	connectLock sync.Mutex
 	stats       *stat.Mgr
+
+	// runtime
+	stAgentCount *stat.Counter
 }
 
 // New new app
 func New(cfg *conf.Configure, version string) *App {
+	st := stat.New(5 * time.Second)
 	app := &App{
-		cfg:     cfg,
-		clients: client.NewClients(),
-		version: version,
-		blocked: false,
-		stats:   stat.New(5 * time.Second),
+		cfg:          cfg,
+		clients:      client.NewClients(),
+		version:      version,
+		blocked:      false,
+		stats:        st,
+		stAgentCount: st.NewCounter("agent_count"),
 	}
 	go app.limit()
 	return app
@@ -107,6 +112,7 @@ func (app *App) Start(s service.Service) error {
 			}()
 			app.agent(w, r, onConnect, onClose)
 			id := <-onClose
+			app.stAgentCount.Dec()
 			logging.Info("client %s connection closed", id)
 			for _, mod := range mods {
 				mod.OnClose(id)
