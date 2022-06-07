@@ -5,6 +5,7 @@ import (
 	"server/code/conf"
 	"sync"
 
+	"github.com/jkstack/jkframe/stat"
 	"github.com/lwch/api"
 )
 
@@ -20,7 +21,7 @@ func New() *Handler {
 }
 
 // Init init handler
-func (h *Handler) Init(cfg *conf.Configure) {
+func (h *Handler) Init(cfg *conf.Configure, stats *stat.Mgr) {
 	h.cfg = cfg
 }
 

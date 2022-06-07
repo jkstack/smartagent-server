@@ -29,7 +29,7 @@ import (
 )
 
 type handler interface {
-	Init(*conf.Configure)
+	Init(*conf.Configure, *stat.Mgr)
 	HandleFuncs() map[string]func(*client.Clients, *api.Context)
 	OnConnect(*client.Client)
 	OnClose(string)
@@ -94,7 +94,7 @@ func (app *App) Start(s service.Service) error {
 		mods = append(mods, apilogging.New())
 
 		for _, mod := range mods {
-			mod.Init(app.cfg)
+			mod.Init(app.cfg, app.stats)
 			for uri, cb := range mod.HandleFuncs() {
 				app.reg(uri, cb)
 			}

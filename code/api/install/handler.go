@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/jkstack/anet"
+	"github.com/jkstack/jkframe/stat"
 	"github.com/lwch/api"
 )
 
@@ -28,8 +29,9 @@ type Info struct {
 // Handler cmd handler
 type Handler struct {
 	sync.RWMutex
-	cfg  *conf.Configure
-	data map[string]*Info
+	cfg     *conf.Configure
+	data    map[string]*Info
+	stUsage *stat.Counter
 }
 
 // New new cmd handler
@@ -40,8 +42,9 @@ func New() *Handler {
 }
 
 // Init init handler
-func (h *Handler) Init(cfg *conf.Configure) {
+func (h *Handler) Init(cfg *conf.Configure, stats *stat.Mgr) {
 	h.cfg = cfg
+	h.stUsage = stats.NewCounter("plugin_count_install")
 }
 
 // HandleFuncs get handle functions
