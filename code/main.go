@@ -57,6 +57,9 @@ func main() {
 	dir, err := filepath.Abs(*cf)
 	runtime.Assert(err)
 
+	opt := make(service.KeyValue)
+	opt["LimitNOFILE"] = 65535
+
 	appCfg := &service.Config{
 		Name:         "smartagent-server",
 		DisplayName:  "smartagent-server",
@@ -64,6 +67,7 @@ func main() {
 		UserName:     user,
 		Arguments:    []string{"-conf", dir},
 		Dependencies: depends,
+		Option:       opt,
 	}
 
 	dir, err = os.Executable()
