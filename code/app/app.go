@@ -53,7 +53,7 @@ func New(cfg *conf.Configure, version string) *App {
 	st := stat.New(5 * time.Second)
 	app := &App{
 		cfg:          cfg,
-		clients:      client.NewClients(),
+		clients:      client.NewClients(st),
 		version:      version,
 		blocked:      false,
 		stats:        st,

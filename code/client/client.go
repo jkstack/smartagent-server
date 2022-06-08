@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"server/code/conf"
 	"server/code/utils"
@@ -17,6 +18,7 @@ const channelBuffer = 10000
 
 type Client struct {
 	sync.RWMutex
+	parent *Clients
 	info   anet.ComePayload
 	remote *websocket.Conn
 	// runtime
@@ -59,12 +61,22 @@ func (cli *Client) read(ctx context.Context, cancel context.CancelFunc) {
 		}
 	}
 	for {
-		var msg anet.Msg
-		err := cli.remote.ReadJSON(&msg)
+		_, data, err := cli.remote.ReadMessage()
 		if err != nil {
 			logging.Error("cli.read(%s): %v", cli.remoteAddr(), err)
 			return
 		}
+
+		cli.parent.stInPackets.Inc()
+		cli.parent.stInBytes.Add(float64(len(data)))
+
+		var msg anet.Msg
+		err = json.Unmarshal(data, &msg)
+		if err != nil {
+			logging.Error("cli.read.unmarshal(%s): %v", cli.remoteAddr(), err)
+			return
+		}
+
 		ch := cli.chRead
 		if len(msg.TaskID) > 0 {
 			cli.RLock()
@@ -85,11 +97,18 @@ func (cli *Client) write(ctx context.Context, cancel context.CancelFunc) {
 		cancel()
 	}()
 	send := func(msg *anet.Msg, i int) bool {
-		err := cli.remote.WriteJSON(msg)
+		data, err := json.Marshal(msg)
+		if err != nil {
+			logging.Error("cli.write.marshal(%s) %d times: %v", cli.remoteAddr(), i, err)
+			return false
+		}
+		err = cli.remote.WriteMessage(websocket.TextMessage, data)
 		if err != nil {
 			logging.Error("cli.write(%s) %d times: %v", cli.remoteAddr(), i, err)
 			return false
 		}
+		cli.parent.stOutPackets.Inc()
+		cli.parent.stOutBytes.Add(float64(len(data)))
 		return true
 	}
 	for {
