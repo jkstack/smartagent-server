@@ -53,6 +53,10 @@ func (h *execHandler) Run(id, dir, user, pass string, args map[string]string) er
 		return fmt.Errorf("send exec [%s] on agent [%s]: %v", h.name, id, err)
 	}
 	defer cli.ChanClose(taskID)
+
+	h.parent.parent.stExecUsage.Inc()
+	h.parent.parent.stTotalTasks.Inc()
+
 	return h.read(cli, h.name, taskID, time.After(time.Duration(timeout)*time.Second), args)
 }
 

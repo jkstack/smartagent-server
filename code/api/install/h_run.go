@@ -39,6 +39,7 @@ func (h *Handler) run(clients *client.Clients, ctx *api.Context) {
 	runtime.Assert(err)
 
 	h.stUsage.Inc()
+	h.stTotalTasks.Inc()
 
 	info := &Info{updated: time.Now()}
 	h.Lock()

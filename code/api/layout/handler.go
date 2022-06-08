@@ -1,6 +1,7 @@
 package layout
 
 import (
+	lapi "server/code/api"
 	"server/code/api/file"
 	"server/code/client"
 	"server/code/conf"
@@ -22,11 +23,14 @@ type taskHandler interface {
 // Handler server handler
 type Handler struct {
 	sync.RWMutex
-	cfg      *conf.Configure
-	runners  map[string]*runner
-	handlers map[string]taskHandler
-	idx      uint32
-	fh       *file.Handler
+	cfg          *conf.Configure
+	runners      map[string]*runner
+	handlers     map[string]taskHandler
+	idx          uint32
+	fh           *file.Handler
+	stExecUsage  *stat.Counter
+	stFileUsage  *stat.Counter
+	stTotalTasks *stat.Counter
 }
 
 // New new cmd handler
@@ -45,6 +49,9 @@ func New(fh *file.Handler) *Handler {
 // Init init handler
 func (h *Handler) Init(cfg *conf.Configure, stats *stat.Mgr) {
 	h.cfg = cfg
+	h.stExecUsage = stats.NewCounter("plugin_count_exec")
+	h.stFileUsage = stats.NewCounter("plugin_count_file")
+	h.stTotalTasks = stats.NewCounter(lapi.TotalTasksLabel)
 }
 
 // HandleFuncs get handle functions

@@ -18,6 +18,7 @@ import (
 )
 
 type configArgs struct {
+	parent   *context
 	Exclude  string        `json:"exclude"`
 	Batch    int           `json:"batch"`
 	Buffer   int           `json:"buffer"`
@@ -28,6 +29,7 @@ type configArgs struct {
 }
 
 type context struct {
+	parent  *Handler
 	ID      int64      `json:"id"`
 	Args    configArgs `json:"args"`
 	Targets []string   `json:"cids"`
@@ -46,6 +48,7 @@ func (ctx *context) in(id string) bool {
 func (h *Handler) config(clients *client.Clients, ctx *api.Context) {
 	t := ctx.XStr("type")
 	var rt context
+	rt.Args.parent = &rt
 	rt.ID = ctx.XInt64("pid")
 	rt.Args.Exclude = ctx.OStr("exclude", "")
 	rt.Args.Batch = ctx.OInt("batch", 1000)
@@ -173,16 +176,19 @@ func (args *configArgs) sendTo(cli *client.Client, pid int64, report string) err
 		_, err := cli.SendLoggingConfigK8s(pid, args.Exclude,
 			args.Batch, args.Buffer, args.Interval, report,
 			args.K8s.Namespace, args.K8s.Names, args.K8s.Dir, args.K8s.Api, args.K8s.Token)
+		args.parent.parent.stTotalTasks.Inc()
 		return err
 	case args.Docker != nil:
 		_, err := cli.SendLoggingConfigDocker(pid, args.Exclude,
 			args.Batch, args.Buffer, args.Interval, report,
 			args.Docker.ContainerName, args.Docker.ContainerTag, args.Docker.Dir)
+		args.parent.parent.stTotalTasks.Inc()
 		return err
 	case args.File != nil:
 		_, err := cli.SendLoggingConfigFile(pid, args.Exclude,
 			args.Batch, args.Buffer, args.Interval, report,
 			args.File.Dir)
+		args.parent.parent.stTotalTasks.Inc()
 		return err
 	default:
 		return errors.New("unsupported")

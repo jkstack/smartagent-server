@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	lapi "server/code/api"
 	"server/code/client"
 	"server/code/conf"
 	"sync"
@@ -16,8 +17,9 @@ import (
 // Handler server handler
 type Handler struct {
 	sync.RWMutex
-	cfg  *conf.Configure
-	data map[int64]*context
+	cfg          *conf.Configure
+	data         map[int64]*context
+	stTotalTasks *stat.Counter
 }
 
 // New new cmd handler
@@ -31,6 +33,7 @@ func New() *Handler {
 func (h *Handler) Init(cfg *conf.Configure, stats *stat.Mgr) {
 	h.cfg = cfg
 	runtime.Assert(h.loadConfig(filepath.Join(h.cfg.DataDir, "logging")))
+	h.stTotalTasks = stats.NewCounter(lapi.TotalTasksLabel)
 }
 
 // HandleFuncs get handle functions
@@ -79,6 +82,8 @@ func (h *Handler) loadConfig(dir string) error {
 		if err != nil {
 			return err
 		}
+		ctx.Args.parent = &ctx
+		ctx.parent = h
 		h.Lock()
 		h.data[ctx.ID] = &ctx
 		h.Unlock()

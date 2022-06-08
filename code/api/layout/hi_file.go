@@ -99,7 +99,6 @@ func (h *fileHandler) upload(cli *client.Client, p *conf.PluginInfo,
 	uri := "/file/upload/" + taskID
 	h.parent.parent.fh.LogUploadCache(taskID, src, token, deadline, false)
 	defer h.parent.parent.fh.RemoveUploadCache(taskID)
-	logging.Info("dst: %s", h.dst)
 	taskID, err = cli.SendUpload(p, client.UploadContext{
 		Dir:  filepath.Dir(h.dst),
 		Name: filepath.Base(h.dst),
@@ -117,6 +116,9 @@ func (h *fileHandler) upload(cli *client.Client, p *conf.PluginInfo,
 	if err != nil {
 		return err
 	}
+
+	h.parent.parent.stFileUsage.Inc()
+	h.parent.parent.stTotalTasks.Inc()
 
 	var rep *anet.Msg
 	select {
@@ -146,6 +148,9 @@ func (h *fileHandler) download(cli *client.Client, p *conf.PluginInfo,
 		return err
 	}
 	defer cli.ChanClose(taskID)
+
+	h.parent.parent.stFileUsage.Inc()
+	h.parent.parent.stTotalTasks.Inc()
 
 	var rep *anet.Msg
 	after := time.After(deadline.Sub(time.Now()))

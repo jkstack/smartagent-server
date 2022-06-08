@@ -37,6 +37,8 @@ func (h *Handler) kill(clients *client.Clients, ctx *api.Context) {
 
 	taskID := process.sendKill(p)
 
+	h.stTotalTasks.Inc()
+
 	logging.Info("kill [%d] on %s, task_id=%s, plugin.version=%s", pid, id, taskID, p.Version)
 
 	ctx.OK(nil)
