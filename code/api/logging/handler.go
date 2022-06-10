@@ -12,6 +12,7 @@ import (
 	"github.com/jkstack/anet"
 	"github.com/jkstack/jkframe/stat"
 	"github.com/lwch/api"
+	"github.com/lwch/logging"
 	"github.com/lwch/runtime"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -76,6 +77,7 @@ func (h *Handler) OnClose(string) {
 }
 
 func (h *Handler) OnMessage(cli *client.Client, msg *anet.Msg) {
+	logging.Info("msg: %p", msg)
 	if msg.Type != anet.TypeLoggingReport {
 		return
 	}
