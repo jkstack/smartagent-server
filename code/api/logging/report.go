@@ -23,7 +23,7 @@ func (h *Handler) onReport(cli *client.Client, data anet.LoggingReport) {
 }
 
 func (h *Handler) onReportAgent(id string, info anet.LoggingReportAgentInfo) {
-	h.stAgent.With(prometheus.Labels{
+	h.stAgentVersion.With(prometheus.Labels{
 		"id":         id,
 		"go_version": info.GoVersion,
 	}).Set(1)

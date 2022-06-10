@@ -19,13 +19,14 @@ import (
 // Handler server handler
 type Handler struct {
 	sync.RWMutex
-	cfg          *conf.Configure
-	data         map[int64]*context
-	stTotalTasks *stat.Counter
-	stK8s        *prometheus.GaugeVec
-	stDocker     *prometheus.GaugeVec
-	stFile       *prometheus.GaugeVec
-	stAgent      *prometheus.GaugeVec
+	cfg            *conf.Configure
+	data           map[int64]*context
+	stTotalTasks   *stat.Counter
+	stK8s          *prometheus.GaugeVec
+	stDocker       *prometheus.GaugeVec
+	stFile         *prometheus.GaugeVec
+	stAgentVersion *prometheus.GaugeVec
+	stAgent        *prometheus.GaugeVec
 }
 
 // New new cmd handler
@@ -43,7 +44,8 @@ func (h *Handler) Init(cfg *conf.Configure, stats *stat.Mgr) {
 	h.stK8s = stats.RawVec("agent_logging_k8s_info", []string{"id", "tag"})
 	h.stDocker = stats.RawVec("agent_logging_docker_info", []string{"id", "tag"})
 	h.stFile = stats.RawVec("agent_logging_file_info", []string{"id", "tag"})
-	h.stAgent = stats.RawVec("agent_info", []string{"id", "tag", "go_version"})
+	h.stAgentVersion = stats.RawVec("agent_version", []string{"id", "go_version"})
+	h.stAgent = stats.RawVec("agent_info", []string{"id", "tag"})
 }
 
 // HandleFuncs get handle functions
