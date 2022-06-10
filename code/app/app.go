@@ -123,6 +123,9 @@ func (app *App) Start(s service.Service) error {
 				for {
 					select {
 					case msg := <-cli.Unknown():
+						if msg == nil {
+							return
+						}
 						for _, mod := range mods {
 							mod.OnMessage(cli, msg)
 						}
