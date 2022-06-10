@@ -179,6 +179,10 @@ func (cli *Client) ChanClose(id string) {
 	}
 }
 
+func (cli *Client) Unknown() <-chan *anet.Msg {
+	return cli.chRead
+}
+
 func fillPlugin(p *conf.PluginInfo) *anet.PluginInfo {
 	return &anet.PluginInfo{
 		Name:    p.Name,

@@ -35,7 +35,7 @@ func NewClients(stats *stat.Mgr) *Clients {
 }
 
 // New new client
-func (cs *Clients) New(conn *websocket.Conn, come *anet.ComePayload, onClose chan string) *Client {
+func (cs *Clients) New(conn *websocket.Conn, come *anet.ComePayload, cancel context.CancelFunc) *Client {
 	cli := &Client{
 		parent:   cs,
 		info:     *come,
@@ -55,7 +55,7 @@ func (cs *Clients) New(conn *websocket.Conn, come *anet.ComePayload, onClose cha
 		delete(cs.data, come.ID)
 		cs.Unlock()
 
-		onClose <- come.ID
+		cancel()
 	}()
 	return cli
 }

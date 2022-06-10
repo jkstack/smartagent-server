@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -20,6 +21,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jkstack/anet"
 	"github.com/jkstack/jkframe/stat"
 	"github.com/kardianos/service"
 	"github.com/lwch/api"
@@ -33,6 +35,7 @@ type handler interface {
 	HandleFuncs() map[string]func(*client.Clients, *api.Context)
 	OnConnect(*client.Client)
 	OnClose(string)
+	OnMessage(*client.Client, *anet.Msg)
 }
 
 // App app
@@ -103,19 +106,38 @@ func (app *App) Start(s service.Service) error {
 		http.HandleFunc("/metrics", app.stats.ServeHTTP)
 		http.HandleFunc("/ws/agent", func(w http.ResponseWriter, r *http.Request) {
 			onConnect := make(chan *client.Client)
-			onClose := make(chan string)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
 			go func() {
-				cli := <-onConnect
-				for _, mod := range mods {
-					mod.OnConnect(cli)
+				select {
+				case cli := <-onConnect:
+					for _, mod := range mods {
+						mod.OnConnect(cli)
+					}
+				case <-ctx.Done():
+					return
 				}
 			}()
-			app.agent(w, r, onConnect, onClose)
-			id := <-onClose
-			app.stAgentCount.Dec()
-			logging.Info("client %s connection closed", id)
-			for _, mod := range mods {
-				mod.OnClose(id)
+			cli := app.agent(w, r, onConnect, cancel)
+			go func() {
+				for {
+					select {
+					case msg := <-cli.Unknown():
+						for _, mod := range mods {
+							mod.OnMessage(cli, msg)
+						}
+					case <-ctx.Done():
+						return
+					}
+				}
+			}()
+			if cli != nil {
+				<-ctx.Done()
+				app.stAgentCount.Dec()
+				logging.Info("client %s connection closed", cli.ID())
+				for _, mod := range mods {
+					mod.OnClose(cli.ID())
+				}
 			}
 		})
 

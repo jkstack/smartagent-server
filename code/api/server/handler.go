@@ -4,6 +4,7 @@ import (
 	"server/code/client"
 	"server/code/conf"
 
+	"github.com/jkstack/anet"
 	"github.com/jkstack/jkframe/stat"
 	"github.com/lwch/api"
 )
@@ -36,4 +37,7 @@ func (h *Handler) OnConnect(*client.Client) {
 
 // OnClose agent on close
 func (h *Handler) OnClose(string) {
+}
+
+func (h *Handler) OnMessage(*client.Client, *anet.Msg) {
 }

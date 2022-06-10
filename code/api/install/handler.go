@@ -65,6 +65,9 @@ func (h *Handler) OnConnect(*client.Client) {
 func (h *Handler) OnClose(string) {
 }
 
+func (h *Handler) OnMessage(*client.Client, *anet.Msg) {
+}
+
 func (h *Handler) loop(cli *client.Client, taskID string) {
 	ch := cli.ChanRead(taskID)
 	h.RLock()

@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jkstack/anet"
 	"github.com/jkstack/jkframe/stat"
 	"github.com/lwch/api"
 )
@@ -88,4 +89,7 @@ func (h *Handler) OnClose(id string) {
 		delete(h.clients, id)
 		h.Unlock()
 	}
+}
+
+func (h *Handler) OnMessage(*client.Client, *anet.Msg) {
 }

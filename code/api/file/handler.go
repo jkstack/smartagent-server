@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jkstack/anet"
 	"github.com/jkstack/jkframe/stat"
 	"github.com/lwch/api"
 	"github.com/lwch/logging"
@@ -54,6 +55,9 @@ func (h *Handler) OnConnect(*client.Client) {
 
 // OnClose agent on close
 func (h *Handler) OnClose(string) {
+}
+
+func (h *Handler) OnMessage(*client.Client, *anet.Msg) {
 }
 
 func (h *Handler) clear() {

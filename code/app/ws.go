@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -19,27 +20,28 @@ var upgrader = websocket.Upgrader{
 }
 
 func (app *App) agent(w http.ResponseWriter, r *http.Request,
-	onConnect chan *client.Client,
-	onClose chan string) {
+	onConnect chan *client.Client, cancel context.CancelFunc) *client.Client {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		logging.Error("upgrade websocket: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil
 	}
 	come, err := app.waitCome(conn)
 	if err != nil {
 		logging.Error("wait come message(%s): %v", conn.RemoteAddr().String(), err)
-		return
+		return nil
 	}
 	if app.handshake(conn, come) {
 		app.stAgentCount.Inc()
 		logging.Info("client %s connection on, os=%s, arch=%s, mac=%s",
 			come.ID, come.OS, come.Arch, come.MAC)
-		cli := app.clients.New(conn, come, onClose)
+		cli := app.clients.New(conn, come, cancel)
 		app.clients.Add(cli)
 		onConnect <- cli
+		return cli
 	}
+	return nil
 }
 
 func (app *App) waitCome(conn *websocket.Conn) (*anet.ComePayload, error) {
