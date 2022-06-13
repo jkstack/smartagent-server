@@ -15,11 +15,14 @@ func setValue(vec *prometheus.GaugeVec, id, tag string, n float64) {
 }
 
 func (h *Handler) onReport(cli *client.Client, data anet.LoggingReport) {
-	setValue(h.stK8s, cli.ID(), "k8s_task_count", float64(data.CountK8s))
-	setValue(h.stDocker, cli.ID(), "docker_task_count", float64(data.CountDocker))
-	setValue(h.stFile, cli.ID(), "file_task_count", float64(data.CountFile))
+	setValue(h.stK8s, cli.ID(), "count", float64(data.CountK8s))
+	setValue(h.stDocker, cli.ID(), "count", float64(data.CountDocker))
+	setValue(h.stFile, cli.ID(), "count", float64(data.CountFile))
 	h.onReportAgent(cli.ID(), data.AgentInfo)
 	h.onReportReporter(cli.ID(), data.Info)
+	h.onReportK8s(cli.ID(), data.K8s)
+	h.onReportDocker(cli.ID(), data.Docker)
+	h.onReportFile(cli.ID(), data.File)
 }
 
 func (h *Handler) onReportAgent(id string, info anet.LoggingReportAgentInfo) {
@@ -52,4 +55,24 @@ func (h *Handler) onReportReporter(id string, info anet.LoggingReportInfo) {
 	setValue(h.stReporter, id, "p_100", float64(info.P100))
 	setValue(h.stReporter, id, "count", float64(info.Count))
 	setValue(h.stReporter, id, "bytes", float64(info.Bytes))
+}
+
+func (h *Handler) onReportK8s(id string, info anet.LoggingReportK8sData) {
+	setValue(h.stK8s, id, "qps", info.QPS)
+	setValue(h.stK8s, id, "avg_cost", info.AvgCost)
+	setValue(h.stK8s, id, "p_0", float64(info.P0))
+	setValue(h.stK8s, id, "p_50", float64(info.P50))
+	setValue(h.stK8s, id, "p_90", float64(info.P90))
+	setValue(h.stK8s, id, "p_99", float64(info.P99))
+	setValue(h.stK8s, id, "p_100", float64(info.P100))
+	setValue(h.stK8s, id, "count_service", float64(info.CountService))
+	setValue(h.stK8s, id, "count_pod", float64(info.CountPod))
+}
+
+func (h *Handler) onReportDocker(id string, info anet.LoggingReportDockerData) {
+	setValue(h.stDocker, id, "count_container", float64(info.Count))
+}
+
+func (h *Handler) onReportFile(id string, info anet.LoggingReportFileData) {
+	setValue(h.stFile, id, "count_files", float64(info.Count))
 }
