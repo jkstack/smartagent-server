@@ -4,7 +4,6 @@ import (
 	"server/code/client"
 
 	"github.com/jkstack/anet"
-	"github.com/lwch/logging"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -27,16 +26,15 @@ func (h *Handler) onReportAgent(id string, info anet.LoggingReportAgentInfo) {
 		"id":         id,
 		"go_version": info.GoVersion,
 	}).Set(1)
-	logging.Info("gc=%v", info.GC)
 	setValue(h.stAgent, id, "threads", float64(info.Threads))
 	setValue(h.stAgent, id, "routines", float64(info.Routines))
 	setValue(h.stAgent, id, "startup", float64(info.Startup))
 	setValue(h.stAgent, id, "heap_in_use", float64(info.HeapInuse))
 	setValue(h.stAgent, id, "gc_0", info.GC["0"])
-	setValue(h.stAgent, id, "gc_0.25", info.GC["0.25"])
-	setValue(h.stAgent, id, "gc_0.5", info.GC["0.5"])
-	setValue(h.stAgent, id, "gc_0.75", info.GC["0.75"])
-	setValue(h.stAgent, id, "gc_1", info.GC["1"])
+	setValue(h.stAgent, id, "gc_25", info.GC["0.25"])
+	setValue(h.stAgent, id, "gc_50", info.GC["0.5"])
+	setValue(h.stAgent, id, "gc_75", info.GC["0.75"])
+	setValue(h.stAgent, id, "gc_100", info.GC["1"])
 	setValue(h.stAgent, id, "in_packets", float64(info.InPackets))
 	setValue(h.stAgent, id, "in_bytes", float64(info.InBytes))
 	setValue(h.stAgent, id, "out_packets", float64(info.OutPackets))
