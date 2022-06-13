@@ -27,6 +27,7 @@ type Handler struct {
 	stFile         *prometheus.GaugeVec
 	stAgentVersion *prometheus.GaugeVec
 	stAgent        *prometheus.GaugeVec
+	stReporter     *prometheus.GaugeVec
 }
 
 // New new cmd handler
@@ -46,6 +47,7 @@ func (h *Handler) Init(cfg *conf.Configure, stats *stat.Mgr) {
 	h.stFile = stats.RawVec("agent_logging_file_info", []string{"id", "tag"})
 	h.stAgentVersion = stats.RawVec("agent_version", []string{"id", "go_version"})
 	h.stAgent = stats.RawVec("agent_info", []string{"id", "tag"})
+	h.stReporter = stats.RawVec("agent_logging_reporter_info", []string{"id", "tag"})
 }
 
 // HandleFuncs get handle functions

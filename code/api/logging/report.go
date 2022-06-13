@@ -19,6 +19,7 @@ func (h *Handler) onReport(cli *client.Client, data anet.LoggingReport) {
 	setValue(h.stDocker, cli.ID(), "docker_task_count", float64(data.CountDocker))
 	setValue(h.stFile, cli.ID(), "file_task_count", float64(data.CountFile))
 	h.onReportAgent(cli.ID(), data.AgentInfo)
+	h.onReportReporter(cli.ID(), data.Info)
 }
 
 func (h *Handler) onReportAgent(id string, info anet.LoggingReportAgentInfo) {
@@ -39,4 +40,16 @@ func (h *Handler) onReportAgent(id string, info anet.LoggingReportAgentInfo) {
 	setValue(h.stAgent, id, "in_bytes", float64(info.InBytes))
 	setValue(h.stAgent, id, "out_packets", float64(info.OutPackets))
 	setValue(h.stAgent, id, "out_bytes", float64(info.OutBytes))
+}
+
+func (h *Handler) onReportReporter(id string, info anet.LoggingReportInfo) {
+	setValue(h.stReporter, id, "qps", info.QPS)
+	setValue(h.stReporter, id, "avg_cost", info.AvgCost)
+	setValue(h.stReporter, id, "p_0", float64(info.P0))
+	setValue(h.stReporter, id, "p_50", float64(info.P50))
+	setValue(h.stReporter, id, "p_90", float64(info.P90))
+	setValue(h.stReporter, id, "p_99", float64(info.P99))
+	setValue(h.stReporter, id, "p_100", float64(info.P100))
+	setValue(h.stReporter, id, "count", float64(info.Count))
+	setValue(h.stReporter, id, "bytes", float64(info.Bytes))
 }
