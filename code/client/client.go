@@ -18,6 +18,7 @@ const channelBuffer = 10000
 
 type Client struct {
 	sync.RWMutex
+	t      string
 	parent *Clients
 	info   anet.ComePayload
 	remote *websocket.Conn

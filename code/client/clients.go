@@ -36,7 +36,12 @@ func NewClients(stats *stat.Mgr) *Clients {
 
 // New new client
 func (cs *Clients) New(conn *websocket.Conn, come *anet.ComePayload, cancel context.CancelFunc) *Client {
+	t := "smart"
+	if come.Name == "godagent" {
+		t = "god"
+	}
 	cli := &Client{
+		t:        t,
 		parent:   cs,
 		info:     *come,
 		remote:   conn,

@@ -9,8 +9,9 @@ import (
 
 func setValue(vec *prometheus.GaugeVec, id, tag string, n float64) {
 	vec.With(prometheus.Labels{
-		"id":  id,
-		"tag": tag,
+		"id":         id,
+		"agent_type": "god",
+		"tag":        tag,
 	}).Set(n)
 }
 
@@ -28,6 +29,7 @@ func (h *Handler) onReport(cli *client.Client, data anet.LoggingReport) {
 func (h *Handler) onReportAgent(id string, info anet.LoggingReportAgentInfo) {
 	h.stAgentVersion.With(prometheus.Labels{
 		"id":         id,
+		"agent_type": "god",
 		"go_version": info.GoVersion,
 	}).Set(1)
 	setValue(h.stAgent, id, "threads", float64(info.Threads))
