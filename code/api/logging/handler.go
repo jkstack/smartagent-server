@@ -42,12 +42,12 @@ func (h *Handler) Init(cfg *conf.Configure, stats *stat.Mgr) {
 	h.cfg = cfg
 	runtime.Assert(h.loadConfig(filepath.Join(h.cfg.DataDir, "logging")))
 	h.stTotalTasks = stats.NewCounter(lapi.TotalTasksLabel)
-	h.stK8s = stats.RawVec("agent_logging_k8s_info", []string{"id", "tag"})
-	h.stDocker = stats.RawVec("agent_logging_docker_info", []string{"id", "tag"})
-	h.stFile = stats.RawVec("agent_logging_file_info", []string{"id", "tag"})
-	h.stAgentVersion = stats.RawVec("agent_version", []string{"id", "go_version"})
-	h.stAgent = stats.RawVec("agent_info", []string{"id", "tag"})
-	h.stReporter = stats.RawVec("agent_logging_reporter_info", []string{"id", "tag"})
+	h.stK8s = stats.RawVec("agent_logging_k8s_info", []string{"id", "agent_type", "tag"})
+	h.stDocker = stats.RawVec("agent_logging_docker_info", []string{"id", "agent_type", "tag"})
+	h.stFile = stats.RawVec("agent_logging_file_info", []string{"id", "agent_type", "tag"})
+	h.stAgentVersion = stats.RawVec("agent_version", []string{"id", "agent_type", "go_version"})
+	h.stAgent = stats.RawVec("agent_info", []string{"id", "agent_type", "tag"})
+	h.stReporter = stats.RawVec("agent_logging_reporter_info", []string{"id", "agent_type", "tag"})
 }
 
 // HandleFuncs get handle functions
