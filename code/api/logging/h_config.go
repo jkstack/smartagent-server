@@ -131,14 +131,14 @@ func (ctx *context) reSend(cli *client.Client, report string) {
 	err := ctx.Args.sendTo(cli, ctx.ID, report)
 	if err != nil {
 		logging.Error("send logging config of project %d to client [%s]: %v",
-			ctx.ID, cli.ID())
+			ctx.ID, cli.ID(), err)
 		return
 	}
 	if ctx.Started {
 		taskID, err := cli.SendLoggingStart(ctx.ID)
 		if err != nil {
-			logging.Error("send logging start of project %d: %v",
-				ctx.ID, cli.ID())
+			logging.Error("send logging start of project %d(%s): %v",
+				ctx.ID, cli.ID(), err)
 			return
 		}
 		defer cli.ChanClose(taskID)
@@ -146,25 +146,25 @@ func (ctx *context) reSend(cli *client.Client, report string) {
 		select {
 		case msg = <-cli.ChanRead(taskID):
 		case <-time.After(api.RequestTimeout):
-			logging.Error("wait logging start status of project %d: %v",
+			logging.Error("wait logging start status of project %d(%s): timeout",
 				ctx.ID, cli.ID())
 			return
 		}
 
 		switch {
 		case msg.Type == anet.TypeError:
-			logging.Error("get logging start status of project %d: %v",
+			logging.Error("get logging start status of project %d(%s): type error",
 				ctx.ID, cli.ID())
 			return
 		case msg.Type != anet.TypeLoggingStatusRep:
-			logging.Error("get logging start status of project %d: %v",
+			logging.Error("get logging start status of project %d(%s): type is not logging_rep",
 				ctx.ID, cli.ID())
 			return
 		}
 
 		if !msg.LoggingStatusRep.OK {
-			logging.Error("get logging start status of project %d: %v",
-				ctx.ID, cli.ID())
+			logging.Error("get logging start status of project %d(%s): %s",
+				ctx.ID, cli.ID(), msg.LoggingStatusRep.Msg)
 			return
 		}
 	}
