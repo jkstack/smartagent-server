@@ -69,6 +69,7 @@ func (h *Handler) onReportK8s(id string, info anet.LoggingReportK8sData) {
 	setValue(h.stK8s, id, "p_100", float64(info.P100))
 	setValue(h.stK8s, id, "count_service", float64(info.CountService))
 	setValue(h.stK8s, id, "count_pod", float64(info.CountPod))
+	setValue(h.stK8s, id, "count_container", float64(info.CountContainer))
 }
 
 func (h *Handler) onReportDocker(id string, info anet.LoggingReportDockerData) {
