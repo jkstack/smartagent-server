@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -21,6 +22,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jkstack/anet"
+	"github.com/jkstack/jkframe/stat"
 	"github.com/kardianos/service"
 	"github.com/lwch/api"
 	"github.com/lwch/logging"
@@ -29,10 +32,11 @@ import (
 )
 
 type handler interface {
-	Init(*conf.Configure)
+	Init(*conf.Configure, *stat.Mgr)
 	HandleFuncs() map[string]func(*client.Clients, *api.Context)
 	OnConnect(*client.Client)
 	OnClose(string)
+	OnMessage(*client.Client, *anet.Msg)
 }
 
 // App app
@@ -42,15 +46,22 @@ type App struct {
 	version     string
 	blocked     bool
 	connectLock sync.Mutex
+	stats       *stat.Mgr
+
+	// runtime
+	stAgentCount *stat.Counter
 }
 
 // New new app
 func New(cfg *conf.Configure, version string) *App {
+	st := stat.New(5 * time.Second)
 	app := &App{
-		cfg:     cfg,
-		clients: client.NewClients(),
-		version: version,
-		blocked: false,
+		cfg:          cfg,
+		clients:      client.NewClients(st),
+		version:      version,
+		blocked:      false,
+		stats:        st,
+		stAgentCount: st.NewCounter("agent_count"),
 	}
 	go app.limit()
 	return app
@@ -88,26 +99,50 @@ func (app *App) Start(s service.Service) error {
 		mods = append(mods, scaffolding.New())
 
 		for _, mod := range mods {
-			mod.Init(app.cfg)
+			mod.Init(app.cfg, app.stats)
 			for uri, cb := range mod.HandleFuncs() {
 				app.reg(uri, cb)
 			}
 		}
 
+		http.HandleFunc("/metrics", app.stats.ServeHTTP)
 		http.HandleFunc("/ws/agent", func(w http.ResponseWriter, r *http.Request) {
 			onConnect := make(chan *client.Client)
-			onClose := make(chan string)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
 			go func() {
-				cli := <-onConnect
-				for _, mod := range mods {
-					mod.OnConnect(cli)
+				select {
+				case cli := <-onConnect:
+					for _, mod := range mods {
+						mod.OnConnect(cli)
+					}
+				case <-ctx.Done():
+					return
 				}
 			}()
-			app.agent(w, r, onConnect, onClose)
-			id := <-onClose
-			logging.Info("client %s connection closed", id)
-			for _, mod := range mods {
-				mod.OnClose(id)
+			cli := app.agent(w, r, onConnect, cancel)
+			go func() {
+				for {
+					select {
+					case msg := <-cli.Unknown():
+						if msg == nil {
+							return
+						}
+						for _, mod := range mods {
+							mod.OnMessage(cli, msg)
+						}
+					case <-ctx.Done():
+						return
+					}
+				}
+			}()
+			if cli != nil {
+				<-ctx.Done()
+				app.stAgentCount.Dec()
+				logging.Info("client %s connection closed", cli.ID())
+				for _, mod := range mods {
+					mod.OnClose(cli.ID())
+				}
 			}
 		})
 

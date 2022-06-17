@@ -5,6 +5,8 @@ import (
 	"server/code/conf"
 	"sync"
 
+	"github.com/jkstack/anet"
+	"github.com/jkstack/jkframe/stat"
 	"github.com/lwch/api"
 )
 
@@ -20,7 +22,7 @@ func New() *Handler {
 }
 
 // Init init handler
-func (h *Handler) Init(cfg *conf.Configure) {
+func (h *Handler) Init(cfg *conf.Configure, stats *stat.Mgr) {
 	h.cfg = cfg
 }
 
@@ -38,4 +40,7 @@ func (h *Handler) OnConnect(*client.Client) {
 
 // OnClose agent on close
 func (h *Handler) OnClose(string) {
+}
+
+func (h *Handler) OnMessage(*client.Client, *anet.Msg) {
 }

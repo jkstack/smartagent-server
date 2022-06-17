@@ -8,24 +8,41 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/jkstack/anet"
+	"github.com/jkstack/jkframe/stat"
 	"github.com/lwch/logging"
 )
 
 // Clients clients
 type Clients struct {
 	sync.RWMutex
-	data map[string]*Client
+	data         map[string]*Client
+	stInPackets  *stat.Counter
+	stOutPackets *stat.Counter
+	stInBytes    *stat.Counter
+	stOutBytes   *stat.Counter
 }
 
-func NewClients() *Clients {
-	clients := &Clients{data: make(map[string]*Client)}
+func NewClients(stats *stat.Mgr) *Clients {
+	clients := &Clients{
+		data:         make(map[string]*Client),
+		stInPackets:  stats.NewCounter("in_packets"),
+		stOutPackets: stats.NewCounter("out_packets"),
+		stInBytes:    stats.NewCounter("in_bytes"),
+		stOutBytes:   stats.NewCounter("out_bytes"),
+	}
 	go clients.print()
 	return clients
 }
 
 // New new client
-func (cs *Clients) New(conn *websocket.Conn, come *anet.ComePayload, onClose chan string) *Client {
+func (cs *Clients) New(conn *websocket.Conn, come *anet.ComePayload, cancel context.CancelFunc) *Client {
+	t := "smart"
+	if come.Name == "godagent" {
+		t = "god"
+	}
 	cli := &Client{
+		t:        t,
+		parent:   cs,
 		info:     *come,
 		remote:   conn,
 		chRead:   make(chan *anet.Msg, channelBuffer),
@@ -43,7 +60,7 @@ func (cs *Clients) New(conn *websocket.Conn, come *anet.ComePayload, onClose cha
 		delete(cs.data, come.ID)
 		cs.Unlock()
 
-		onClose <- come.ID
+		cancel()
 	}()
 	return cli
 }

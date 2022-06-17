@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## TODO
+
+1. 支持docker容器的log采集
+2. 增加所有API接口的prometheus埋点
+3. 增加插件使用频率埋点
+4. 增加收发数据量埋点
+5. 增加log采集状态埋点
+
 ## 2.0.2
 
 1. 修正/hm/static接口返回值与文档不一致的问题

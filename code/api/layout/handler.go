@@ -1,12 +1,15 @@
 package layout
 
 import (
+	lapi "server/code/api"
 	"server/code/api/file"
 	"server/code/client"
 	"server/code/conf"
 	"sync"
 	"time"
 
+	"github.com/jkstack/anet"
+	"github.com/jkstack/jkframe/stat"
 	"github.com/lwch/api"
 )
 
@@ -21,11 +24,14 @@ type taskHandler interface {
 // Handler server handler
 type Handler struct {
 	sync.RWMutex
-	cfg      *conf.Configure
-	runners  map[string]*runner
-	handlers map[string]taskHandler
-	idx      uint32
-	fh       *file.Handler
+	cfg          *conf.Configure
+	runners      map[string]*runner
+	handlers     map[string]taskHandler
+	idx          uint32
+	fh           *file.Handler
+	stExecUsage  *stat.Counter
+	stFileUsage  *stat.Counter
+	stTotalTasks *stat.Counter
 }
 
 // New new cmd handler
@@ -42,8 +48,11 @@ func New(fh *file.Handler) *Handler {
 }
 
 // Init init handler
-func (h *Handler) Init(cfg *conf.Configure) {
+func (h *Handler) Init(cfg *conf.Configure, stats *stat.Mgr) {
 	h.cfg = cfg
+	h.stExecUsage = stats.NewCounter("plugin_count_exec")
+	h.stFileUsage = stats.NewCounter("plugin_count_file")
+	h.stTotalTasks = stats.NewCounter(lapi.TotalTasksLabel)
 }
 
 // HandleFuncs get handle functions
@@ -59,6 +68,9 @@ func (h *Handler) OnConnect(*client.Client) {
 
 // OnClose agent on close
 func (h *Handler) OnClose(string) {
+}
+
+func (h *Handler) OnMessage(*client.Client, *anet.Msg) {
 }
 
 func (h *Handler) clear() {

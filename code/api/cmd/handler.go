@@ -1,11 +1,14 @@
 package cmd
 
 import (
+	lapi "server/code/api"
 	"server/code/client"
 	"server/code/conf"
 	"sync"
 	"time"
 
+	"github.com/jkstack/anet"
+	"github.com/jkstack/jkframe/stat"
 	"github.com/lwch/api"
 )
 
@@ -14,8 +17,10 @@ const clearTimeout = 30 * time.Minute
 // Handler cmd handler
 type Handler struct {
 	sync.RWMutex
-	cfg     *conf.Configure
-	clients map[string]*cmdClient // cid => client
+	cfg          *conf.Configure
+	clients      map[string]*cmdClient // cid => client
+	stUsage      *stat.Counter
+	stTotalTasks *stat.Counter
 }
 
 // New new cmd handler
@@ -26,8 +31,10 @@ func New() *Handler {
 }
 
 // Init init handler
-func (h *Handler) Init(cfg *conf.Configure) {
+func (h *Handler) Init(cfg *conf.Configure, stats *stat.Mgr) {
 	h.cfg = cfg
+	h.stUsage = stats.NewCounter("plugin_count_exec")
+	h.stTotalTasks = stats.NewCounter(lapi.TotalTasksLabel)
 }
 
 // HandleFuncs get handle functions
@@ -82,4 +89,7 @@ func (h *Handler) OnClose(id string) {
 		delete(h.clients, id)
 		h.Unlock()
 	}
+}
+
+func (h *Handler) OnMessage(*client.Client, *anet.Msg) {
 }

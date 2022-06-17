@@ -38,6 +38,9 @@ func (h *Handler) run(clients *client.Clients, ctx *api.Context) {
 	taskID, err := cli.SendInstall(p, uri, url, dir, timeout, auth, user, pass)
 	runtime.Assert(err)
 
+	h.stUsage.Inc()
+	h.stTotalTasks.Inc()
+
 	info := &Info{updated: time.Now()}
 	h.Lock()
 	h.data[taskID] = info

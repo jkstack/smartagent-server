@@ -40,6 +40,8 @@ func (h *Handler) start(clients *client.Clients, ctx *api.Context) {
 		runtime.Assert(err)
 		defer cli.ChanClose(taskID)
 
+		h.stTotalTasks.Inc()
+
 		var msg *anet.Msg
 		select {
 		case msg = <-cli.ChanRead(taskID):

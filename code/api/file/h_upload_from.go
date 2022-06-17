@@ -51,6 +51,9 @@ func (h *Handler) uploadFrom(clients *client.Clients, ctx *api.Context) {
 	runtime.Assert(err)
 	defer cli.ChanClose(taskID)
 
+	h.stUsage.Inc()
+	h.stTotalTasks.Inc()
+
 	logging.Info("upload [%s] to %s on %s, task_id=%s, plugin.version=%s",
 		name, dir, id, taskID, p.Version)
 

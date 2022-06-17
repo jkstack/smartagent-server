@@ -38,6 +38,9 @@ func (h *Handler) download(clients *client.Clients, ctx *api.Context) {
 	runtime.Assert(err)
 	defer cli.ChanClose(taskID)
 
+	h.stUsage.Inc()
+	h.stTotalTasks.Inc()
+
 	logging.Info("download [%s] on %s, task_id=%s, plugin.version=%s", dir, id, taskID, p.Version)
 
 	var rep *anet.Msg

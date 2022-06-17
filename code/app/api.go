@@ -5,6 +5,7 @@ import (
 	"net/http"
 	lapi "server/code/api"
 	"server/code/client"
+	"strings"
 
 	"github.com/lwch/api"
 	"github.com/lwch/logging"
@@ -16,6 +17,12 @@ func (app *App) reg(uri string, cb func(*client.Clients, *api.Context)) {
 			http.Error(w, "raise limit", http.StatusServiceUnavailable)
 			return
 		}
+		statName := strings.TrimSuffix(uri, "/")
+		statName = strings.ReplaceAll(statName, "/", ":")
+		counter := app.stats.NewCounter("api_counter" + statName)
+		counter.Inc()
+		tick := app.stats.NewTick("api_pref" + statName)
+		defer tick.Close()
 		ctx := api.NewContext(w, r)
 		defer func() {
 			if err := recover(); err != nil {

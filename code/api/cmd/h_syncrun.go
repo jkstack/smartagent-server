@@ -50,6 +50,9 @@ func (h *Handler) syncRun(clients *client.Clients, ctx *api.Context) {
 	taskID, err := cli.SendExec(p, cmd, args, timeout, auth, user, pass, workdir, env)
 	runtime.Assert(err)
 
+	h.stUsage.Inc()
+	h.stTotalTasks.Inc()
+
 	logging.Info("sync_run [%s] on %s, task_id=%s, plugin.version=%s", cmd, id, taskID, p.Version)
 
 	var msg *anet.Msg
