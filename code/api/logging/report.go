@@ -57,6 +57,8 @@ func (h *Handler) onReportReporter(id string, info anet.LoggingReportInfo) {
 	setValue(h.stReporter, id, "p_100", float64(info.P100))
 	setValue(h.stReporter, id, "count", float64(info.Count))
 	setValue(h.stReporter, id, "bytes", float64(info.Bytes))
+	setValue(h.stReporter, id, "http_error_count", float64(info.HttpErr))
+	setValue(h.stReporter, id, "service_error_count", float64(info.SrvErr))
 }
 
 func (h *Handler) onReportK8s(id string, info anet.LoggingReportK8sData) {
