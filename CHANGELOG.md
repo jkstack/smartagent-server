@@ -1,8 +1,9 @@
 # CHANGELOG
 
-## TODO
+## 2.0.2
 
 1. 修正/hm/static接口返回值与文档不一致的问题
+2. 新增/scaffolding/foo接口支持脚手架项目
 
 ## 2.0.1
 

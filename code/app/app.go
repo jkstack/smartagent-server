@@ -13,6 +13,7 @@ import (
 	"server/code/api/layout"
 	apilogging "server/code/api/logging"
 	"server/code/api/plugin"
+	"server/code/api/scaffolding"
 	"server/code/api/server"
 	"server/code/client"
 	"server/code/conf"
@@ -84,6 +85,7 @@ func (app *App) Start(s service.Service) error {
 		mods = append(mods, install.New())
 		mods = append(mods, layout.New(fh))
 		mods = append(mods, apilogging.New())
+		mods = append(mods, scaffolding.New())
 
 		for _, mod := range mods {
 			mod.Init(app.cfg)
