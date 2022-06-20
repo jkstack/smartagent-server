@@ -48,6 +48,7 @@ func (ctx *context) in(id string) bool {
 func (h *Handler) config(clients *client.Clients, ctx *api.Context) {
 	t := ctx.XStr("type")
 	var rt context
+	rt.parent = h
 	rt.Args.parent = &rt
 	rt.ID = ctx.XInt64("pid")
 	rt.Args.Exclude = ctx.OStr("exclude", "")
