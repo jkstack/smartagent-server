@@ -3,7 +3,10 @@ package cmd
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"io/ioutil"
+	"net/http"
+	"net/url"
 	"path"
 	"server/code/conf"
 	"time"
@@ -15,43 +18,48 @@ import (
 
 const memoryCacheSize = 102400
 
+var callbackCli = &http.Client{Timeout: time.Minute}
+
 type process struct {
-	parent  *cmdClient
-	id      int
-	cmd     string
-	created time.Time
-	updated time.Time
-	taskID  string
-	running bool
-	code    int
-	cache   *l2cache.Cache
-	ctx     context.Context
-	cancel  context.CancelFunc
+	parent   *cmdClient
+	id       int
+	cmd      string
+	callback string
+	created  time.Time
+	updated  time.Time
+	taskID   string
+	running  bool
+	code     int
+	cache    *l2cache.Cache
+	ctx      context.Context
+	cancel   context.CancelFunc
 }
 
-func newProcess(parent *cmdClient, cfg *conf.Configure, id int, cmd, taskID string) (*process, error) {
+func newProcess(parent *cmdClient, cfg *conf.Configure, id int, cmd, taskID, callback string) (*process, error) {
 	cache, err := l2cache.New(memoryCacheSize, path.Join(cfg.CacheDir, "cmd"))
 	if err != nil {
 		return nil, err
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	return &process{
-		parent:  parent,
-		id:      id,
-		cmd:     cmd,
-		created: time.Now(),
-		updated: time.Now(),
-		taskID:  taskID,
-		running: true,
-		code:    -65535,
-		cache:   cache,
-		ctx:     ctx,
-		cancel:  cancel,
+		parent:   parent,
+		id:       id,
+		cmd:      cmd,
+		callback: callback,
+		created:  time.Now(),
+		updated:  time.Now(),
+		taskID:   taskID,
+		running:  true,
+		code:     -65535,
+		cache:    cache,
+		ctx:      ctx,
+		cancel:   cancel,
 	}, nil
 }
 
 func (p *process) recv() {
 	defer p.cancel()
+	defer p.cb()
 	cli := p.parent.cli
 	ch := cli.ChanRead(p.taskID)
 	defer cli.ChanClose(p.taskID)
@@ -102,4 +110,30 @@ func (p *process) sendKill(plugin *conf.PluginInfo) string {
 
 func (p *process) wait() {
 	<-p.ctx.Done()
+}
+
+func (p *process) cb() {
+	if len(p.callback) == 0 {
+		return
+	}
+	u, err := url.Parse(p.callback)
+	if err != nil {
+		logging.Error("parse for callback url [%s]: %v", p.callback, err)
+		return
+	}
+	args := u.Query()
+	args.Set("agent_id", p.parent.cli.ID())
+	args.Set("pid", fmt.Sprintf("%d", p.id))
+	u.RawQuery = args.Encode()
+	resp, err := callbackCli.Get(u.String())
+	if err != nil {
+		logging.Error("callback to [%s]: %v", p.callback, err)
+		return
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		data, _ := ioutil.ReadAll(resp.Body)
+		logging.Error("callback to [%s] is not http200: %d\n%s", resp.StatusCode, string(data))
+		return
+	}
 }

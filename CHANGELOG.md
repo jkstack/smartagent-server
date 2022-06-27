@@ -7,6 +7,8 @@
 3. 增加插件使用频率埋点
 4. 增加收发数据量埋点
 5. 增加log采集状态埋点
+6. /cmd/run接口增加defer_rm和callback参数
+7. /cmd/sync_run接口增加defer_rm参数
 
 ## 2.0.2
 

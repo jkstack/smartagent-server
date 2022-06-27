@@ -48,7 +48,7 @@ func (h *execHandler) Run(id, dir, user, pass string, args map[string]string) er
 	}
 	timeout := int(deadline.Sub(time.Now()).Seconds() + .5)
 	taskID, err := cli.SendExec(p, h.cmd, nil, timeout, h.auth,
-		h.parent.user, h.parent.pass, "", nil)
+		h.parent.user, h.parent.pass, "", nil, "")
 	if err != nil {
 		return fmt.Errorf("send exec [%s] on agent [%s]: %v", h.name, id, err)
 	}

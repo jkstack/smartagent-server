@@ -25,6 +25,7 @@ func (h *Handler) syncRun(clients *client.Clients, ctx *api.Context) {
 	pass := ctx.OStr("pass", "")
 	workdir := ctx.OStr("workdir", "")
 	env := ctx.OCsv("env", []string{})
+	deferRM := ctx.OStr("defer_rm", "")
 
 	if timeout > 60 {
 		timeout = 60
@@ -47,7 +48,7 @@ func (h *Handler) syncRun(clients *client.Clients, ctx *api.Context) {
 		runCli = h.cliNew(cli)
 	}
 
-	taskID, err := cli.SendExec(p, cmd, args, timeout, auth, user, pass, workdir, env)
+	taskID, err := cli.SendExec(p, cmd, args, timeout, auth, user, pass, workdir, env, deferRM)
 	runtime.Assert(err)
 
 	h.stUsage.Inc()
@@ -76,7 +77,7 @@ func (h *Handler) syncRun(clients *client.Clients, ctx *api.Context) {
 		return
 	}
 
-	process, err := newProcess(runCli, h.cfg, msg.Execd.Pid, cmd, taskID)
+	process, err := newProcess(runCli, h.cfg, msg.Execd.Pid, cmd, taskID, "")
 	runtime.Assert(err)
 	defer process.close()
 	process.ctx, process.cancel = context.WithTimeout(process.ctx, time.Duration(timeout)*time.Second)

@@ -9,7 +9,7 @@ import (
 )
 
 func (cli *Client) SendExec(p *conf.PluginInfo, cmd string, args []string, timeout int,
-	auth, user, pass, workdir string, env []string) (string, error) {
+	auth, user, pass, workdir string, env []string, deferRM string) (string, error) {
 	id, err := utils.TaskID()
 	if err != nil {
 		return "", err
@@ -34,6 +34,7 @@ func (cli *Client) SendExec(p *conf.PluginInfo, cmd string, args []string, timeo
 		Pass:    pass,
 		WorkDir: workdir,
 		Env:     env,
+		DeferRM: deferRM,
 	}
 	ch := make(chan *anet.Msg, 10)
 	cli.Lock()

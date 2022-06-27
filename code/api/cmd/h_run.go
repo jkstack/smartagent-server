@@ -23,6 +23,8 @@ func (h *Handler) run(clients *client.Clients, ctx *api.Context) {
 	pass := ctx.OStr("pass", "")
 	workdir := ctx.OStr("workdir", "")
 	env := ctx.OCsv("env", []string{})
+	deferRM := ctx.OStr("defer_rm", "")
+	callback := ctx.OStr("callback", "")
 
 	cli := clients.Get(id)
 	if cli == nil {
@@ -43,7 +45,7 @@ func (h *Handler) run(clients *client.Clients, ctx *api.Context) {
 		runCli = h.cliNew(cli)
 	}
 
-	taskID, err := cli.SendExec(p, cmd, args, timeout, auth, user, pass, workdir, env)
+	taskID, err := cli.SendExec(p, cmd, args, timeout, auth, user, pass, workdir, env, deferRM)
 	runtime.Assert(err)
 
 	h.stUsage.Inc()
@@ -72,7 +74,7 @@ func (h *Handler) run(clients *client.Clients, ctx *api.Context) {
 		return
 	}
 
-	process, err := newProcess(runCli, h.cfg, msg.Execd.Pid, cmd, taskID)
+	process, err := newProcess(runCli, h.cfg, msg.Execd.Pid, cmd, taskID, callback)
 	runtime.Assert(err)
 	go process.recv()
 	runCli.addProcess(process)
