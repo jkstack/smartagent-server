@@ -137,6 +137,8 @@ github.com/hashicorp/golang-lru v0.5.1/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ
 github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/jkstack/anet v0.0.0-20220627023556-0e1c742e7074 h1:QlJzQJXPxxM3g1X2lgLBNM3xICxAAXXFv2jpwc2IONM=
 github.com/jkstack/anet v0.0.0-20220627023556-0e1c742e7074/go.mod h1:zpkHPpKpEdaNNLLLabhWdyjRcczZYwPLocie5ys/RTc=
+github.com/jkstack/anet v0.0.0-20220701093727-7f4683edc043 h1:qChLQnZWoVfTNwlDYfmi65YFDqmjKHXJ43Om0FwvozQ=
+github.com/jkstack/anet v0.0.0-20220701093727-7f4683edc043/go.mod h1:zpkHPpKpEdaNNLLLabhWdyjRcczZYwPLocie5ys/RTc=
 github.com/jkstack/jkframe v1.0.4 h1:mNZ99EKgJ2v59A90P+rcx7+3Poex1Otvj7y0RQ9cAzI=
 github.com/jkstack/jkframe v1.0.4/go.mod h1:s3Eq2ScKxRLGjHU8qfjapfO5fcuXtDwsZSJiq+naIfY=
 github.com/jpillora/backoff v1.0.0/go.mod h1:J/6gKK9jxlEcS3zixgDgUAsiuZ7yrSoa/FX5e0EB2j4=
