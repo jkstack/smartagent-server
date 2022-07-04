@@ -12,9 +12,10 @@ import (
 
 // Handler server handler
 type Handler struct {
-	cfg      *conf.Configure
-	stAgent  *prometheus.GaugeVec
-	stPlugin *prometheus.GaugeVec
+	cfg            *conf.Configure
+	stAgentVersion *prometheus.GaugeVec
+	stAgentInfo    *prometheus.GaugeVec
+	stPlugin       *prometheus.GaugeVec
 }
 
 // New new cmd handler
@@ -25,7 +26,8 @@ func New() *Handler {
 // Init init handler
 func (h *Handler) Init(cfg *conf.Configure, stats *stat.Mgr) {
 	h.cfg = cfg
-	h.stAgent = stats.RawVec("agent_info", []string{"id", "agent_type", "tag"})
+	h.stAgentVersion = stats.RawVec("agent_version", []string{"id", "agent_type", "version", "go_version"})
+	h.stAgentInfo = stats.RawVec("agent_info", []string{"id", "agent_type", "tag"})
 	h.stPlugin = stats.RawVec("plugin_info", []string{"id", "agent_type", "name", "tag"})
 }
 
