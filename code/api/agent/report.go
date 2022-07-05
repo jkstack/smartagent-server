@@ -2,7 +2,6 @@ package agent
 
 import (
 	"github.com/jkstack/anet"
-	"github.com/lwch/logging"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -21,7 +20,6 @@ func (h *Handler) basicInfo(id string, info *anet.AgentInfo) {
 		"version":    info.Version,
 		"go_version": info.GoVersion,
 	}).Set(1)
-	logging.Info("gc of agent [%s]: %v", id, info.GC)
 	setValue(h.stAgentInfo, id, "cpu_usage", float64(info.CpuUsage))
 	setValue(h.stAgentInfo, id, "memory_usage", float64(info.MemoryUsage))
 	setValue(h.stAgentInfo, id, "threads", float64(info.Threads))
