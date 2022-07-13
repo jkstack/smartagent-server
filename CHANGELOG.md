@@ -1,11 +1,12 @@
 # CHANGELOG
 
-## TODO
+## 2.0.3
 
 1. 支持docker容器的log采集
 2. 增加基于prometheus的埋点监控
 3. /cmd/run接口增加defer_rm和callback参数
 4. /cmd/sync_run接口增加defer_rm参数
+5. go版本升级到1.18.4
 
 ## 2.0.2
 
