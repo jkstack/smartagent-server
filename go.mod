@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/dustin/go-humanize v1.0.0
 	github.com/gorilla/websocket v1.5.0
-	github.com/jkstack/anet v0.0.0-20220627023556-0e1c742e7074
+	github.com/jkstack/anet v0.0.0-20220701093727-7f4683edc043
 	github.com/jkstack/jkframe v1.0.4
 	github.com/kardianos/service v1.2.1
 	github.com/lwch/api v0.0.0-20220418064400-20942890aacd

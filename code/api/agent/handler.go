@@ -7,11 +7,15 @@ import (
 	"github.com/jkstack/anet"
 	"github.com/jkstack/jkframe/stat"
 	"github.com/lwch/api"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 // Handler server handler
 type Handler struct {
-	cfg *conf.Configure
+	cfg            *conf.Configure
+	stAgentVersion *prometheus.GaugeVec
+	stAgentInfo    *prometheus.GaugeVec
+	stPlugin       *prometheus.GaugeVec
 }
 
 // New new cmd handler
@@ -22,6 +26,9 @@ func New() *Handler {
 // Init init handler
 func (h *Handler) Init(cfg *conf.Configure, stats *stat.Mgr) {
 	h.cfg = cfg
+	h.stAgentVersion = stats.RawVec("agent_version", []string{"id", "agent_type", "version", "go_version"})
+	h.stAgentInfo = stats.RawVec("agent_info", []string{"id", "agent_type", "tag"})
+	h.stPlugin = stats.RawVec("plugin_info", []string{"id", "agent_type", "name", "tag"})
 }
 
 // HandleFuncs get handle functions
@@ -46,5 +53,10 @@ func (h *Handler) OnConnect(*client.Client) {
 func (h *Handler) OnClose(string) {
 }
 
-func (h *Handler) OnMessage(*client.Client, *anet.Msg) {
+func (h *Handler) OnMessage(cli *client.Client, msg *anet.Msg) {
+	if msg.Type != anet.TypeAgentInfo {
+		return
+	}
+	h.basicInfo(cli.ID(), msg.AgentInfo)
+	h.pluginInfo(cli.ID(), msg.AgentInfo)
 }

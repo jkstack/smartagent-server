@@ -30,6 +30,7 @@ func (h *Handler) onReportAgent(id string, info anet.LoggingReportAgentInfo) {
 	h.stAgentVersion.With(prometheus.Labels{
 		"id":         id,
 		"agent_type": "god",
+		"version":    "0.0.0", // TODO
 		"go_version": info.GoVersion,
 	}).Set(1)
 	setValue(h.stAgent, id, "threads", float64(info.Threads))
