@@ -121,6 +121,9 @@ func (app *App) Start(s service.Service) error {
 				}
 			}()
 			cli := app.agent(w, r, onConnect, cancel)
+			if cli == nil {
+				return
+			}
 			go func() {
 				for {
 					select {
@@ -136,13 +139,11 @@ func (app *App) Start(s service.Service) error {
 					}
 				}
 			}()
-			if cli != nil {
-				<-ctx.Done()
-				app.stAgentCount.Dec()
-				logging.Info("client %s connection closed", cli.ID())
-				for _, mod := range mods {
-					mod.OnClose(cli.ID())
-				}
+			<-ctx.Done()
+			app.stAgentCount.Dec()
+			logging.Info("client %s connection closed", cli.ID())
+			for _, mod := range mods {
+				mod.OnClose(cli.ID())
 			}
 		})
 
