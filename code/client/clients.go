@@ -48,6 +48,7 @@ func (cs *Clients) New(conn *websocket.Conn, come *anet.ComePayload, cancel cont
 		chRead:   make(chan *anet.Msg, channelBuffer),
 		chWrite:  make(chan *anet.Msg, channelBuffer),
 		taskRead: make(map[string]chan *anet.Msg, channelBuffer/10),
+		cancel:   cancel,
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	go cli.read(ctx, cancel)
