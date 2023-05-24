@@ -26,9 +26,11 @@ type Client struct {
 	chRead   chan *anet.Msg
 	chWrite  chan *anet.Msg
 	taskRead map[string]chan *anet.Msg
+	cancel   context.CancelFunc
 }
 
 func (cli *Client) close() {
+	cli.cancel()
 	logging.Info("client %s connection closed", cli.info.ID)
 	if cli.remote != nil {
 		cli.remote.Close()
